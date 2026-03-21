@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Habit Tracker — {{ 'Login' if mode=='login' else 'Register' }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#020602;font-family:'DM Mono',monospace;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  background-image:radial-gradient(ellipse 60% 60% at 50% 0%,#0e2f0eaa 0%,transparent 55%),
+    radial-gradient(ellipse 50% 50% at 0% 100%,#09190966 0%,transparent 50%);
+}
+.card{width:100%;max-width:400px;margin:20px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(57,255,20,0.15);
+  border-radius:20px;padding:36px 32px;}
+.logo{text-align:center;margin-bottom:28px;}
+.logo h1{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:5px;
+  background:linear-gradient(135deg,#fff,#a8ff78);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;}
+.logo p{font-size:9px;letter-spacing:4px;color:rgba(57,255,20,0.5);margin-top:4px;text-transform:uppercase;}
+.tabs{display:flex;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);margin-bottom:24px;}
+.tabs a{flex:1;display:block;text-align:center;padding:10px;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;text-decoration:none;color:rgba(255,255,255,0.35);transition:all 0.2s;}
+.tabs a.active{background:rgba(57,255,20,0.12);color:#39FF14;border-bottom:2px solid #39FF14;}
+.tabs a:hover:not(.active){color:rgba(255,255,255,0.6);}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.3);
+  text-transform:uppercase;margin-bottom:6px;}
+.field input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:14px;
+  color:#fff;outline:none;transition:border-color 0.3s;}
+.field input:focus{border-color:rgba(57,255,20,0.4);background:rgba(57,255,20,0.04);}
+.field input::placeholder{color:rgba(255,255,255,0.2);}
+.btn{width:100%;padding:14px;margin-top:6px;font-family:'Bebas Neue',sans-serif;font-size:18px;
+  letter-spacing:4px;background:linear-gradient(135deg,rgba(57,255,20,0.2),rgba(57,255,20,0.1));
+  border:1px solid rgba(57,255,20,0.35);border-radius:12px;color:#39FF14;
+  cursor:pointer;transition:all 0.3s;text-transform:uppercase;}
+.btn:hover{background:linear-gradient(135deg,rgba(57,255,20,0.3),rgba(57,255,20,0.15));
+  box-shadow:0 0 24px rgba(57,255,20,0.2);transform:translateY(-1px);}
+.err{background:rgba(255,59,48,0.1);border:1px solid rgba(255,59,48,0.3);
+  border-radius:8px;padding:10px 14px;font-size:11px;color:#ff6b6b;margin-bottom:14px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <h1>HABIT TRACKER</h1>
+    <p>Consistent On Everything</p>
+  </div>
+  <div class="tabs">
+    <a href="/login"    class="{{ 'active' if mode=='login'    else '' }}">Login</a>
+    <a href="/register" class="{{ 'active' if mode=='register' else '' }}">Register</a>
+  </div>
+  {% if error %}<div class="err">⚠️ {{ error }}</div>{% endif %}
+
+  {% if mode == 'login' %}
+  <form method="POST" action="/api/login">
+    <div class="field"><label>Username</label><input type="text" name="username" placeholder="your_username" required autocomplete="username"></div>
+    <div class="field"><label>Password</label><input type="password" name="password" placeholder="••••••••" required autocomplete="current-password"></div>
+    <button type="submit" class="btn">LOGIN →</button>
+  </form>
+  {% else %}
+  <form method="POST" action="/api/register">
+    <div class="field"><label>Username</label><input type="text" name="username" placeholder="pick a username" required autocomplete="username"></div>
+    <div class="field"><label>Password</label><input type="password" name="password" placeholder="Min 6 characters" required autocomplete="new-password"></div>
+    <div class="field"><label>Your Habit</label><input type="text" name="habit" placeholder="CONSISTENT ON EVERYTHING" autocomplete="off"></div>
+    <button type="submit" class="btn">CREATE ACCOUNT →</button>
+  </form>
+  {% endif %}
+</div>
+</body>
+</html>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Habit Tracker — {{ user.username }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#39FF14;--g2:#a8ff78;--y:#FFD700;--o:#FF8C00;--r:#FF3B30;
+  --gg:0 0 12px #39FF14,0 0 26px #39FF1444;
+  --gy:0 0 12px #FFD700,0 0 26px #FFD70044;
+  --gr:0 0 12px #FF3B30,0 0 26px #FF3B3044;}
+html,body{min-height:100vh;background:#020602;font-family:'DM Mono',monospace;color:#fff;overflow-x:hidden;}
+
+/* BG */
+.bg{position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 70% at 5% 40%,#0d280d88 0%,transparent 60%),
+    radial-gradient(ellipse 50% 60% at 95% 60%,#0a1e0a66 0%,transparent 60%),
+    radial-gradient(ellipse 80% 35% at 50% 0%,#0e2f0eaa 0%,transparent 55%),
+    linear-gradient(160deg,#020602 0%,#040f04 100%);
+  animation:bgP 12s ease-in-out infinite alternate;}
+@keyframes bgP{0%{filter:brightness(1)}100%{filter:brightness(1.13)}}
+.gbg{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:linear-gradient(rgba(57,255,20,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(57,255,20,0.02) 1px,transparent 1px);
+  background-size:56px 56px;}
+.cg{position:fixed;z-index:1;pointer-events:none;border-radius:50%;filter:blur(90px);}
+.cg.tl{top:-150px;left:-150px;width:380px;height:380px;background:var(--g);opacity:0.08;animation:cgP 9s ease-in-out infinite alternate;}
+.cg.br{bottom:-150px;right:-150px;width:380px;height:380px;background:var(--g2);opacity:0.08;animation:cgP 9s 4s ease-in-out infinite alternate;}
+@keyframes cgP{0%{opacity:0.05}100%{opacity:0.12}}
+.pts{position:fixed;inset:0;z-index:2;pointer-events:none;}
+.pt{position:absolute;border-radius:50%;background:var(--g);opacity:0;animation:ptU linear infinite;}
+@keyframes ptU{0%{opacity:0;transform:translateY(0) scale(0)}8%{opacity:0.4;transform:scale(1)}92%{opacity:0.06}100%{opacity:0;transform:translateY(-100vh) scale(0.3)}}
+
+/* PAGE */
+.page{position:relative;z-index:10;max-width:1400px;margin:0 auto;padding:20px 24px;}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;padding:12px 18px;margin-bottom:16px;}
+.nbrand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;
+  background:linear-gradient(135deg,#fff,var(--g2));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;}
+.nright{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.nuser{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.32);}
+.code-chip{display:flex;align-items:center;gap:6px;background:rgba(57,255,20,0.08);
+  border:1px solid rgba(57,255,20,0.22);border-radius:8px;padding:6px 12px;cursor:pointer;}
+.code-chip .lbl{font-size:8px;letter-spacing:2px;color:rgba(57,255,20,0.5);}
+.code-chip .val{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:var(--g);}
+.nbtn{display:inline-block;background:transparent;border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;padding:6px 12px;color:rgba(255,255,255,0.38);font-family:'DM Mono',monospace;
+  font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:all 0.2s;}
+.nbtn:hover{border-color:rgba(57,255,20,0.3);color:var(--g);}
+.nbtn.red:hover{border-color:rgba(255,59,48,0.4);color:#ff6b6b;}
+
+/* WEATHER BAR */
+.wbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px;padding:8px 16px;margin-bottom:14px;}
+#wIcon{font-size:18px;}
+#wLoc{font-size:9px;letter-spacing:3px;color:rgba(57,255,20,0.5);text-transform:uppercase;}
+#wTemp{font-size:11px;letter-spacing:1px;color:rgba(255,255,255,0.6);}
+#wDate{font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.28);}
+#clockEl{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff;
+  text-shadow:0 0 20px rgba(57,255,20,0.1);margin-left:auto;}
+
+/* CHECK-IN */
+.cin{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  background:linear-gradient(135deg,rgba(57,255,20,0.1),rgba(57,255,20,0.04));
+  border:1px solid rgba(57,255,20,0.25);border-radius:14px;padding:16px 22px;margin-bottom:16px;}
+.cin-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#fff;}
+.cin-sub{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.3);margin-top:2px;text-transform:uppercase;}
+.cin-btn{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;
+  background:var(--g);color:#020602;border:none;border-radius:10px;padding:12px 24px;
+  cursor:pointer;box-shadow:var(--gg);text-decoration:none;display:inline-block;}
+.cin-btn.done{background:rgba(57,255,20,0.12);color:var(--g);border:1px solid rgba(57,255,20,0.3);box-shadow:none;}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:1fr 280px;gap:18px;align-items:start;}
+
+/* TRACKER */
+.tracker{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.09);
+  border-radius:16px;padding:20px;margin-bottom:16px;}
+.tracker.mine{border-color:rgba(57,255,20,0.16);}
+.th{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+.th-own{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.28);text-transform:uppercase;margin-bottom:3px;}
+.th-own.you{color:rgba(57,255,20,0.5);}
+.th-habit{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;
+  background:linear-gradient(135deg,#fff,var(--g2));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;}
+.schip{font-size:9px;letter-spacing:2px;background:rgba(57,255,20,0.1);
+  border:1px solid rgba(57,255,20,0.22);border-radius:20px;padding:4px 12px;color:var(--g);}
+.mnav{display:flex;align-items:center;gap:6px;}
+.mnav a{display:inline-block;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:7px;padding:4px 10px;color:rgba(255,255,255,0.4);text-decoration:none;font-size:14px;transition:all 0.2s;}
+.mnav a:hover{background:rgba(255,255,255,0.12);color:#fff;}
+.mnav-lbl{font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.45);text-transform:uppercase;min-width:80px;text-align:center;}
+
+/* DOTS */
+.drow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:5px;}
+.drow span{text-align:center;font-size:8px;letter-spacing:1px;color:rgba(255,255,255,0.16);text-transform:uppercase;}
+.dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px;}
+.dot{aspect-ratio:1;border-radius:50%;width:65%;margin:auto;display:block;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.06);position:relative;}
+.dot.done  {background:var(--g);box-shadow:var(--gg);border-color:transparent;animation:pop 0.4s ease both;}
+.dot.missed{background:var(--r);box-shadow:var(--gr);border-color:transparent;animation:pop 0.4s ease both;}
+.dot.today {background:var(--y);box-shadow:var(--gy);border-color:transparent;animation:pop 0.4s ease both,tdy 2.5s 1s ease-in-out infinite;}
+.dot.today::before{content:'';position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(255,215,0,0.22);animation:ring 2.5s 1s ease-out infinite;}
+.dot.today::after {content:'';position:absolute;inset:-12px;border-radius:50%;border:1px solid rgba(255,215,0,0.1);animation:ring 2.5s 1.35s ease-out infinite;}
+.dot.future{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.04);}
+@keyframes pop{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+@keyframes tdy{0%,100%{box-shadow:var(--gy)}50%{box-shadow:0 0 20px #FFD700,0 0 45px #FFD70055}}
+@keyframes ring{0%{transform:scale(1);opacity:0.5}100%{transform:scale(2.2);opacity:0}}
+
+/* Clickable dots are buttons */
+button.dot{cursor:pointer;transition:transform 0.15s;}
+button.dot:hover{transform:scale(1.25);}
+button.dot:active{transform:scale(0.85);}
+.dot-empty{aspect-ratio:1;width:65%;margin:auto;}
+.lock-note{font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.15);text-align:center;margin-bottom:10px;text-transform:uppercase;}
+
+/* PROGRESS */
+.prow{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.pbg{flex:1;height:3px;background:rgba(255,255,255,0.07);border-radius:10px;overflow:hidden;}
+.pfill{height:100%;background:linear-gradient(90deg,var(--g),var(--g2),var(--g));background-size:200%;
+  border-radius:10px;box-shadow:0 0 7px var(--g);animation:shim 3s linear infinite;}
+@keyframes shim{0%{background-position:0%}100%{background-position:200%}}
+.ppct{font-size:10px;letter-spacing:2px;color:var(--g);min-width:32px;text-align:right;}
+
+/* STATS */
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.sc{border-radius:10px;padding:10px 8px;text-align:center;}
+.sc.g{background:rgba(57,255,20,0.06);border:1px solid rgba(57,255,20,0.13);}
+.sc.r{background:rgba(255,59,48,0.06);border:1px solid rgba(255,59,48,0.13);}
+.sc.y{background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.13);}
+.sc.d{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);}
+.sv{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;line-height:1;}
+.sc.g .sv{color:var(--g);text-shadow:0 0 12px rgba(57,255,20,0.35);}
+.sc.r .sv{color:var(--r);text-shadow:0 0 12px rgba(255,59,48,0.35);}
+.sc.y .sv{color:var(--y);}
+.sc.d .sv{color:rgba(255,255,255,0.4);}
+.sl{font-size:7px;letter-spacing:2px;color:rgba(255,255,255,0.2);text-transform:uppercase;margin-top:3px;}
+
+/* ALLTIME */
+.atrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.atc{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 8px;text-align:center;}
+.atv{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:rgba(255,255,255,0.5);line-height:1;}
+.atl{font-size:7px;letter-spacing:2px;color:rgba(255,255,255,0.2);text-transform:uppercase;margin-top:3px;}
+
+/* YEAR */
+.ys{margin-top:8px;}
+.yl{font-size:8px;letter-spacing:4px;color:rgba(255,255,255,0.18);text-transform:uppercase;margin-bottom:7px;}
+.ygrid{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;}
+.ym{border-radius:5px;padding:5px 2px;text-align:center;}
+.ym.future {background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);}
+.ym.curr   {background:rgba(255,215,0,0.15);  border:1px solid rgba(255,215,0,0.28);animation:ymp 2.5s ease-in-out infinite;}
+.ym.all-red{background:rgba(255,59,48,0.15);  border:1px solid rgba(255,59,48,0.25);}
+.ym.half   {background:rgba(255,140,0,0.15);  border:1px solid rgba(255,140,0,0.25);}
+.ym.mostly {background:rgba(57,255,20,0.12);  border:1px solid rgba(57,255,20,0.22);}
+@keyframes ymp{0%,100%{box-shadow:none}50%{box-shadow:0 0 8px rgba(255,215,0,0.2)}}
+.ymn{font-size:7px;letter-spacing:1px;text-transform:uppercase;}
+.ymb{height:2px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin-top:3px;}
+.ymf{height:100%;border-radius:4px;}
+.ym.future  .ymn{color:rgba(255,255,255,0.2);}
+.ym.curr    .ymn{color:rgba(255,215,0,0.7);} .ym.curr    .ymf{background:var(--y);}
+.ym.all-red .ymn{color:rgba(255,100,90,0.7);}.ym.all-red .ymf{background:var(--r);}
+.ym.half    .ymn{color:rgba(255,160,50,0.7);}.ym.half    .ymf{background:var(--o);}
+.ym.mostly  .ymn{color:rgba(57,255,20,0.7);} .ym.mostly  .ymf{background:var(--g);box-shadow:0 0 3px var(--g);}
+
+/* REACTIONS */
+.rxrow{display:flex;align-items:center;gap:6px;margin-top:12px;flex-wrap:wrap;}
+.rxlbl{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.25);text-transform:uppercase;}
+.rxbtn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;padding:5px 8px;font-size:15px;cursor:pointer;transition:all 0.2s;}
+.rxbtn:hover{background:rgba(255,255,255,0.1);transform:scale(1.12);}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:12px;position:sticky;top:20px;}
+.scard{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:16px;}
+.stitle{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.28);text-transform:uppercase;margin-bottom:12px;}
+
+/* CLOCK in sidebar */
+.clk-big{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:3px;color:#fff;
+  line-height:1;text-align:center;text-shadow:0 0 28px rgba(57,255,20,0.1);}
+.clk-date{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.22);
+  text-transform:uppercase;text-align:center;margin-top:5px;line-height:1.6;}
+
+/* ADD FRIEND */
+.cform{display:flex;gap:7px;margin-bottom:8px;}
+.cform input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;padding:9px 11px;font-family:'Bebas Neue',sans-serif;font-size:17px;
+  letter-spacing:3px;color:#fff;outline:none;text-transform:uppercase;}
+.cform input:focus{border-color:rgba(57,255,20,0.35);}
+.cform input::placeholder{color:rgba(255,255,255,0.15);font-size:12px;font-family:'DM Mono',monospace;letter-spacing:2px;}
+.cform button{background:rgba(57,255,20,0.15);border:1px solid rgba(57,255,20,0.3);
+  border-radius:8px;padding:9px 13px;color:var(--g);cursor:pointer;font-size:16px;}
+.mycode{background:rgba(57,255,20,0.06);border:1px solid rgba(57,255,20,0.14);
+  border-radius:10px;padding:11px;text-align:center;cursor:pointer;}
+.mcl{font-size:8px;letter-spacing:3px;color:rgba(57,255,20,0.5);text-transform:uppercase;margin-bottom:4px;}
+.mcv{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;color:var(--g);text-shadow:0 0 14px rgba(57,255,20,0.3);}
+.mch{font-size:7px;letter-spacing:2px;color:rgba(255,255,255,0.18);margin-top:3px;}
+
+/* FRIEND LIST */
+.fi{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.fi:last-child{border-bottom:none;padding-bottom:0;}
+.fin{font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.7);}
+.fis{font-size:9px;letter-spacing:1px;color:rgba(57,255,20,0.5);margin-top:1px;}
+.frm{background:transparent;border:1px solid rgba(255,59,48,0.18);border-radius:5px;padding:3px 7px;color:rgba(255,59,48,0.45);cursor:pointer;font-size:9px;}
+.nofr{font-size:10px;letter-spacing:1px;color:rgba(255,255,255,0.18);text-align:center;padding:10px 0;line-height:1.7;}
+
+/* LB link */
+.lb-link{display:block;text-align:center;font-size:10px;letter-spacing:2px;color:rgba(57,255,20,0.5);
+  text-decoration:none;padding:8px;border:1px solid rgba(57,255,20,0.15);border-radius:8px;transition:all 0.2s;}
+.lb-link:hover{background:rgba(57,255,20,0.08);color:var(--g);}
+
+/* TOAST (JS) */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(16px);z-index:200;
+  background:rgba(8,18,8,0.96);border:1px solid rgba(57,255,20,0.3);border-radius:12px;
+  padding:11px 18px;font-size:11px;letter-spacing:2px;color:var(--g);
+  opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(max-width:820px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{position:static;}
+  .page{padding:14px 14px;}
+  .srow{grid-template-columns:repeat(2,1fr);}
+  .ygrid{grid-template-columns:repeat(6,1fr);}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="gbg"></div>
+<div class="cg tl"></div><div class="cg br"></div>
+<div class="pts" id="pts"></div>
+<div class="toast" id="toast"></div>
+
+<div class="page">
+
+<!-- NAV -->
+<nav>
+  <div class="nbrand">🎯 HABIT TRACKER</div>
+  <div class="nright">
+    <span class="nuser">👤 {{ user.username }}</span>
+    <div class="code-chip" onclick="copyTxt('{{ user.invite_code }}')" title="Click to copy">
+      <span class="lbl">MY CODE</span>
+      <span class="val">{{ user.invite_code }}</span>
+      <span style="opacity:0.38;font-size:11px;margin-left:4px;">📋</span>
+    </div>
+    <a href="/leaderboard" class="nbtn">🏆 Leaderboard</a>
+    <a href="/logout" class="nbtn red">Logout</a>
+  </div>
+</nav>
+
+<!-- WEATHER BAR -->
+<div class="wbar">
+  <span id="wIcon">⛅</span>
+  <span id="wLoc">📍 Detecting location...</span>
+  <span style="color:rgba(255,255,255,0.1)">|</span>
+  <span id="wTemp">-- °C</span>
+  <span style="color:rgba(255,255,255,0.1)">|</span>
+  <span id="wDate">{{ today_str }}</span>
+  <span id="clockEl" style="margin-left:auto;">--:--</span>
+</div>
+
+<!-- CHECK-IN BANNER -->
+{% set today_done = namespace(val=false) %}
+{% for dot in dots %}
+  {% if dot.ds == today_str and dot.cls == 'done' %}{% set today_done.val = true %}{% endif %}
+{% endfor %}
+
+<div class="cin">
+  <div>
+    <div class="cin-title">{% if today_done.val %}🔥 CHECKED IN FOR TODAY{% else %}✅ MARK TODAY DONE{% endif %}</div>
+    <div class="cin-sub">{% if today_done.val %}Great work! Keep the streak going.{% else %}Tap to check in for today{% endif %}</div>
+  </div>
+  {% if today_done.val %}
+    <form method="POST" action="/toggle">
+      <input type="hidden" name="date" value="{{ today_str }}">
+      <input type="hidden" name="year" value="{{ year }}">
+      <input type="hidden" name="month" value="{{ month }}">
+      <button type="submit" class="cin-btn done" style="cursor:pointer;">✅ DONE TODAY</button>
+    </form>
+  {% else %}
+    <form method="POST" action="/toggle">
+      <input type="hidden" name="date" value="{{ today_str }}">
+      <input type="hidden" name="year" value="{{ year }}">
+      <input type="hidden" name="month" value="{{ month }}">
+      <button type="submit" class="cin-btn">CHECK IN TODAY</button>
+    </form>
+  {% endif %}
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- MAIN: TRACKERS -->
+  <div>
+
+    <!-- MY TRACKER -->
+    <div class="tracker mine">
+      <div class="th">
+        <div>
+          <div class="th-own you">🎯 YOU</div>
+          <div class="th-habit">{{ user.habit_icon or '🎯' }} {{ user.habit_name }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="schip">🔥 {{ my_streak }} DAY STREAK</div>
+          <div class="mnav">
+            <a href="/dashboard?year={{ prev_year }}&month={{ prev_month }}">‹</a>
+            <span class="mnav-lbl">{{ month_name }} {{ year }}</span>
+            <a href="/dashboard?year={{ next_year }}&month={{ next_month }}">›</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="drow"><span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span></div>
+      <div class="dgrid">
+        <!-- offset empty cells -->
+        {% for i in range(offset) %}<div class="dot-empty"></div>{% endfor %}
+        <!-- day dots -->
+        {% for dot in dots %}
+          {% if dot.clickable %}
+            <form method="POST" action="/toggle" style="aspect-ratio:1;width:65%;margin:auto;display:block;">
+              <input type="hidden" name="date"  value="{{ dot.ds }}">
+              <input type="hidden" name="year"  value="{{ year }}">
+              <input type="hidden" name="month" value="{{ month }}">
+              <button type="submit" class="dot {{ dot.cls }}" style="width:100%;height:100%;" title="{{ 'Unmark' if dot.cls == 'done' else 'Mark done' }}"></button>
+            </form>
+          {% else %}
+            <div class="dot {{ dot.cls }}" title="{{ '🔒 Locked' if dot.locked else '' }}"></div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="lock-note">🔒 Only today &amp; yesterday are editable — past is locked</div>
+
+      <div class="prow">
+        <div class="pbg"><div class="pfill" style="width:{{ pct }}%"></div></div>
+        <div class="ppct">{{ pct }}%</div>
+      </div>
+
+      <div class="srow">
+        <div class="sc g"><div class="sv">{{ done_count }}</div><div class="sl">✅ Done</div></div>
+        <div class="sc r"><div class="sv">{{ missed_count }}</div><div class="sl">❌ Missed</div></div>
+        <div class="sc y"><div class="sv">{{ my_streak }}</div><div class="sl">🔥 Streak</div></div>
+        <div class="sc d"><div class="sv">{{ total_days - done_count - missed_count }}</div><div class="sl">⏳ Left</div></div>
+      </div>
+
+      <div class="atrow">
+        <div class="atc"><div class="atv">{{ my_best }}</div><div class="atl">🏆 Best Streak</div></div>
+        <div class="atc"><div class="atv">{{ total_done }}</div><div class="atl">📅 Total Done</div></div>
+        <div class="atc"><div class="atv">{{ rate }}%</div><div class="atl">📈 Completion</div></div>
+      </div>
+
+      <div class="ys">
+        <div class="yl">{{ year }} — YEAR OVERVIEW</div>
+        <div class="ygrid">
+          {% for yd in year_data %}
+          <div class="ym {{ yd.cls }}" title="{{ months_list[yd.mo-1] }}: {{ yd.d }} done, {{ yd.m }} missed">
+            <div class="ymn">{{ months_list[yd.mo-1] }}</div>
+            <div class="ymb"><div class="ymf" style="width:{{ yd.pct }}%"></div></div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- FRIEND TRACKERS -->
+    {% for fd in friend_data %}
+    {% set f = fd.user %}
+    <div class="tracker">
+      <div class="th">
+        <div>
+          <div class="th-own">👤 {{ f.username }}</div>
+          <div class="th-habit">{{ f.habit_icon or '🎯' }} {{ f.habit_name }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="schip">🔥 {{ fd.streak }} DAY STREAK</div>
+          <div class="mnav">
+            <a href="/dashboard?year={{ prev_year }}&month={{ prev_month }}">‹</a>
+            <span class="mnav-lbl">{{ month_name }} {{ year }}</span>
+            <a href="/dashboard?year={{ next_year }}&month={{ next_month }}">›</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="drow"><span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span></div>
+      <div class="dgrid">
+        {% for i in range(offset) %}<div class="dot-empty"></div>{% endfor %}
+        {% for dot in fd.dots %}
+          <div class="dot {{ dot.cls }}"></div>
+        {% endfor %}
+      </div>
+
+      <div class="prow">
+        <div class="pbg"><div class="pfill" style="width:{{ fd.pct }}%"></div></div>
+        <div class="ppct">{{ fd.pct }}%</div>
+      </div>
+
+      <div class="srow">
+        <div class="sc g"><div class="sv">{{ fd.done }}</div><div class="sl">✅ Done</div></div>
+        <div class="sc r"><div class="sv">{{ fd.missed }}</div><div class="sl">❌ Missed</div></div>
+        <div class="sc y"><div class="sv">{{ fd.streak }}</div><div class="sl">🔥 Streak</div></div>
+        <div class="sc d"><div class="sv">{{ [total_days - fd.done - fd.missed, 0]|max }}</div><div class="sl">⏳ Left</div></div>
+      </div>
+
+      <div class="atrow">
+        <div class="atc"><div class="atv">{{ fd.best }}</div><div class="atl">🏆 Best Streak</div></div>
+        <div class="atc"><div class="atv">{{ fd.total }}</div><div class="atl">📅 Total Done</div></div>
+        <div class="atc"><div class="atv">{{ fd.rate }}%</div><div class="atl">📈 Completion</div></div>
+      </div>
+
+      <div class="ys">
+        <div class="yl">{{ year }} — YEAR OVERVIEW</div>
+        <div class="ygrid">
+          {% for yd in fd.year_data %}
+          <div class="ym {{ yd.cls }}" title="{{ months_list[yd.mo-1] }}: {{ yd.d }} done, {{ yd.m }} missed">
+            <div class="ymn">{{ months_list[yd.mo-1] }}</div>
+            <div class="ymb"><div class="ymf" style="width:{{ yd.pct }}%"></div></div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Reactions -->
+      <div class="rxrow">
+        <span class="rxlbl">React:</span>
+        {% for emoji in ['🔥','❤️','👏','💪','🏆','😮'] %}
+        <form method="POST" action="/react" style="display:inline;">
+          <input type="hidden" name="to_id" value="{{ f.id }}">
+          <input type="hidden" name="emoji"  value="{{ emoji }}">
+          <input type="hidden" name="year"   value="{{ year }}">
+          <input type="hidden" name="month"  value="{{ month }}">
+          <button type="submit" class="rxbtn">{{ emoji }}</button>
+        </form>
+        {% endfor %}
+      </div>
+
+      <!-- Remove friend -->
+      <form method="POST" action="/friends/remove" style="margin-top:10px;">
+        <input type="hidden" name="friend_id" value="{{ f.id }}">
+        <input type="hidden" name="year"  value="{{ year }}">
+        <input type="hidden" name="month" value="{{ month }}">
+        <button type="submit" class="nbtn red" style="font-size:9px;padding:5px 10px;">✕ Remove Friend</button>
+      </form>
+    </div>
+    {% endfor %}
+
+  </div><!-- end main -->
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Clock card -->
+    <div class="scard" style="text-align:center;">
+      <div class="clk-big" id="clockBig">--:--</div>
+      <div class="clk-date" id="clockDate">Loading...</div>
+    </div>
+
+    <!-- Add Friend -->
+    <div class="scard">
+      <div class="stitle">➕ Add Friend</div>
+      <form method="POST" action="/friends/add">
+        <input type="hidden" name="year"  value="{{ year }}">
+        <input type="hidden" name="month" value="{{ month }}">
+        <div class="cform">
+          <input type="text" name="code" placeholder="Enter code" maxlength="6" required autocomplete="off">
+          <button type="submit">＋</button>
+        </div>
+      </form>
+      <div class="mycode" onclick="copyTxt('{{ user.invite_code }}')">
+        <div class="mcl">Your Invite Code</div>
+        <div class="mcv">{{ user.invite_code }}</div>
+        <div class="mch">Tap to copy &amp; share</div>
+      </div>
+    </div>
+
+    <!-- Friends list -->
+    <div class="scard">
+      <div class="stitle">👥 Friends ({{ friend_data|length }})</div>
+      {% if friend_data %}
+        {% for fd in friend_data %}
+        <div class="fi">
+          <div>
+            <div class="fin">{{ fd.user.habit_icon or '🎯' }} {{ fd.user.username }}</div>
+            <div class="fis">🔥 {{ fd.streak }} day streak</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="nofr">No friends yet.<br>Share your code above!</div>
+      {% endif %}
+    </div>
+
+    <!-- Leaderboard link -->
+    <a href="/leaderboard" class="lb-link">🏆 View Leaderboard →</a>
+
+  </div><!-- end sidebar -->
+
+</div><!-- end layout -->
+</div><!-- end page -->
+
+<script>
+// ── PARTICLES
+(function(){
+  var w=document.getElementById('pts');
+  for(var i=0;i<16;i++){
+    var p=document.createElement('div');p.className='pt';
+    var s=Math.random()*3+0.5;
+    p.style.cssText='width:'+s+'px;height:'+s+'px;left:'+Math.random()*100+'%;bottom:'+Math.random()*10+'%;animation-duration:'+(10+Math.random()*14)+'s;animation-delay:'+Math.random()*11+'s;';
+    w.appendChild(p);
+  }
+})();
+
+// ── CLOCK (simple, works in all browsers)
+function updateClock(){
+  var n=new Date();
+  var h=n.getHours(),m=n.getMinutes();
+  var ap=h>=12?'PM':'AM';
+  h=h%12||12;
+  var ts=(h<10?'0':'')+h+':'+(m<10?'0':'')+m+' '+ap;
+  var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var ds=days[n.getDay()]+', '+n.getDate()+' '+months[n.getMonth()]+' '+n.getFullYear();
+
+  var cb=document.getElementById('clockBig');
+  var cd=document.getElementById('clockDate');
+  var ce=document.getElementById('clockEl');
+  var wd=document.getElementById('wDate');
+  if(cb) cb.textContent=ts;
+  if(cd) cd.textContent=ds;
+  if(ce) ce.textContent=ts;
+  if(wd) wd.textContent=ds;
+}
+updateClock();
+setInterval(updateClock,1000);
+
+// ── LOCATION + WEATHER
+var uLat=12.9716,uLon=77.5946;
+function getLocation(){
+  if(!navigator.geolocation){fetchWeather(uLat,uLon,'Bengaluru');return;}
+  navigator.geolocation.getCurrentPosition(
+    function(p){uLat=p.coords.latitude;uLon=p.coords.longitude;revGeo();fetchWeather(uLat,uLon,null);},
+    function(){fetchWeather(uLat,uLon,'Bengaluru');},
+    {timeout:6000}
+  );
+}
+function revGeo(){
+  fetch('https://nominatim.openstreetmap.org/reverse?lat='+uLat+'&lon='+uLon+'&format=json')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var city=d.address.city||d.address.town||d.address.village||'Your City';
+      var el=document.getElementById('wLoc');
+      if(el) el.textContent='📍 '+city;
+    }).catch(function(){});
+}
+function fetchWeather(lat,lon,fb){
+  fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current_weather=true')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var wc=d.current_weather.weathercode,t=Math.round(d.current_weather.temperature);
+      var icons=['☀️','☀️','⛅','⛅','🌧️','🌧️','🌧️','❄️','⛈️'];
+      var icon=wc<=1?'☀️':wc<=3?'⛅':wc<=67?'🌧️':wc<=77?'❄️':'⛈️';
+      var desc=wc<=1?'Clear':wc<=3?'Cloudy':wc<=67?'Rainy':wc<=77?'Snow':'Stormy';
+      var wi=document.getElementById('wIcon');
+      var wt=document.getElementById('wTemp');
+      var wl=document.getElementById('wLoc');
+      if(wi) wi.textContent=icon;
+      if(wt) wt.textContent=t+'°C — '+desc;
+      if(fb&&wl) wl.textContent='📍 '+fb;
+    }).catch(function(){
+      var el=document.getElementById('wTemp');
+      if(el) el.textContent='--°C';
+      if(fb){var wl=document.getElementById('wLoc');if(wl) wl.textContent='📍 '+fb;}
+    });
+}
+getLocation();
+
+// ── COPY CODE
+function copyTxt(txt){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(function(){showToast('📋 Copied: '+txt);});
+  }else{
+    var ta=document.createElement('textarea');
+    ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);showToast('📋 Copied: '+txt);
+  }
+}
+
+// ── TOAST
+function showToast(msg){
+  var t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2500);
+}
+</script>
+</body>
+</html>
