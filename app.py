@@ -1,14 +1,14 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
-import sqlite3, random, string
+import sqlite3, random, string, os
 from datetime import date, datetime, timedelta
 from calendar import monthrange
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = 'habittracker_secret_key_2025'
-import os
-DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'habit.db')
+app.secret_key = os.environ.get('SECRET_KEY', 'habittracker_xK9mP2nQ7wR4vL6')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB = os.path.join(BASE_DIR, 'habit.db')
 
 # ── DATABASE ─────────────────────────────────────────────
 def db():
@@ -405,3 +405,6 @@ if __name__ == '__main__':
     print('\n✅ Habit Tracker running!')
     print('👉 Open: http://localhost:5000\n')
     app.run(debug=True, port=5000, use_reloader=False)
+
+# ── This runs on Railway/Render via gunicorn ──
+init_db()
