@@ -400,6 +400,8 @@ def leaderboard():
     board.sort(key=lambda x: x['streak'], reverse=True)
     return render_template('leaderboard.html', board=board)
 
+
+init_db()
 if __name__ == '__main__':
     init_db()
     print('\n✅ Habit Tracker running!')
