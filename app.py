@@ -7,7 +7,8 @@ from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = 'habittracker_secret_key_2025'
-DB = 'habit.db'
+import os
+DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'habit.db')
 
 # ── DATABASE ─────────────────────────────────────────────
 def db():
