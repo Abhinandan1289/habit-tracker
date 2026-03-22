@@ -56,6 +56,16 @@ def execute(conn, sql, params=()):
 def init_db():
     conn = db()
     cur = conn.cursor()
+    if not USE_PG:
+        # SQLite: drop and recreate all tables fresh to avoid schema mismatch
+        cur.executescript('''
+            DROP TABLE IF EXISTS reactions;
+            DROP TABLE IF EXISTS logs;
+            DROP TABLE IF EXISTS friends;
+            DROP TABLE IF EXISTS habits;
+            DROP TABLE IF EXISTS users;
+        ''')
+        conn.commit()
     if USE_PG:
         cur.execute('''
             CREATE TABLE IF NOT EXISTS users (
@@ -570,3 +580,78 @@ if __name__ == '__main__':
     print('\n✅ Habit Tracker v5 running!')
     print('👉 Open: http://localhost:5000\n')
     app.run(debug=True, port=5000, use_reloader=False)
+
+# ── ADMIN ─────────────────────────────────────────────────
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin1289')
+
+@app.route('/admin')
+def admin_login():
+    if session.get('is_admin'):
+        return redirect('/admin/dashboard')
+    return render_template('admin_login.html', error=None)
+
+@app.route('/admin/login', methods=['POST'])
+def admin_do_login():
+    pwd = request.form.get('password','')
+    if pwd == ADMIN_PASSWORD:
+        session['is_admin'] = True
+        return redirect('/admin/dashboard')
+    return render_template('admin_login.html', error='Wrong password!')
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('is_admin', None)
+    return redirect('/admin')
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    if not session.get('is_admin'):
+        return redirect('/admin')
+    conn = db()
+    users = fetchall(execute(conn, '''
+        SELECT u.id, u.username, u.avatar, u.invite_code, u.created_at,
+        COUNT(DISTINCT f.friend_id) as friend_count
+        FROM users u LEFT JOIN friends f ON f.user_id = u.id
+        GROUP BY u.id ORDER BY u.id DESC
+    '''))
+    habits = fetchall(execute(conn, '''
+        SELECT h.*, u.username FROM habits h
+        JOIN users u ON h.user_id = u.id ORDER BY h.id DESC
+    '''))
+    today_str = date.today().strftime('%Y-%m-%d')
+    total_logs  = fetchone(execute(conn, 'SELECT COUNT(*) as c FROM logs'))['c']
+    today_logs  = fetchone(execute(conn, 'SELECT COUNT(*) as c FROM logs WHERE log_date=?', (today_str,)))['c']
+    total_rx    = fetchone(execute(conn, 'SELECT COUNT(*) as c FROM reactions'))['c']
+    total_fr    = fetchone(execute(conn, 'SELECT COUNT(*) as c FROM friends'))['c']
+    recent = fetchall(execute(conn, '''
+        SELECT l.log_date, u.username, h.name as habit_name, u.avatar
+        FROM logs l JOIN users u ON l.user_id=u.id
+        JOIN habits h ON l.habit_id=h.id
+        ORDER BY l.id DESC LIMIT 30
+    '''))
+    conn.close()
+    users = [dict(u) for u in users]
+    for u in users:
+        uh = get_user_habits(u['id'])
+        u['total_streak'] = sum(streak(h['id']) for h in uh)
+        u['habit_count']  = len(uh)
+    return render_template('admin.html',
+        users=users, habits=habits,
+        total_logs=total_logs, today_logs=today_logs,
+        recent=recent, total_rx=total_rx, total_fr=total_fr,
+        total_users=len(users), total_habits=len(habits),
+    )
+
+@app.route('/admin/delete-user', methods=['POST'])
+def admin_delete_user():
+    if not session.get('is_admin'): return redirect('/admin')
+    uid = int(request.form.get('user_id',0))
+    conn = db()
+    hs = fetchall(execute(conn,'SELECT id FROM habits WHERE user_id=?',(uid,)))
+    for h in hs: execute(conn,'DELETE FROM logs WHERE habit_id=?',(h['id'],))
+    execute(conn,'DELETE FROM habits WHERE user_id=?',(uid,))
+    execute(conn,'DELETE FROM friends WHERE user_id=? OR friend_id=?',(uid,uid))
+    execute(conn,'DELETE FROM reactions WHERE from_id=? OR to_id=?',(uid,uid))
+    execute(conn,'DELETE FROM users WHERE id=?',(uid,))
+    conn.commit(); conn.close()
+    return redirect('/admin/dashboard')
