@@ -582,7 +582,7 @@ if __name__ == '__main__':
     app.run(debug=True, port=5000, use_reloader=False)
 
 # ── ADMIN ─────────────────────────────────────────────────
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin1289')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', '')
 
 @app.route('/admin')
 def admin_login():
