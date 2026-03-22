@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#39FF14;--g2:#a8ff78;--y:#FFD700;--r:#FF3B30;}
+body{min-height:100vh;background:#020602;font-family:'DM Mono',monospace;color:#fff;
+  background-image:radial-gradient(ellipse 60% 50% at 50% 0%,#0e2f0e88 0%,transparent 55%);}
+.page{max-width:600px;margin:0 auto;padding:24px 20px;}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:2px;
+  color:rgba(255,255,255,0.4);text-decoration:none;text-transform:uppercase;
+  margin-bottom:20px;transition:color 0.2s;}
+.back:hover{color:var(--g);}
+.title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:5px;
+  background:linear-gradient(135deg,#fff,var(--g2));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
+.subtitle{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.28);margin-bottom:28px;text-transform:uppercase;}
+
+.section{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;padding:22px;margin-bottom:16px;}
+.sec-title{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.28);
+  text-transform:uppercase;margin-bottom:16px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.3);
+  text-transform:uppercase;margin-bottom:6px;}
+.field input,.field select{width:100%;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:10px 13px;
+  font-family:'DM Mono',monospace;font-size:13px;color:#fff;outline:none;transition:border-color 0.3s;}
+.field input:focus,.field select:focus{border-color:rgba(57,255,20,0.4);}
+.field input::placeholder{color:rgba(255,255,255,0.2);}
+.field select option{background:#0a140a;}
+
+/* AVATAR GRID */
+.av-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.av-opt{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.05);
+  border:2px solid transparent;display:flex;align-items:center;justify-content:center;
+  font-size:22px;cursor:pointer;transition:all 0.2s;}
+.av-opt:hover{background:rgba(57,255,20,0.1);}
+.av-opt.sel{background:rgba(57,255,20,0.15);border-color:var(--g);}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-info{}
+.toggle-label{font-size:12px;letter-spacing:1px;color:rgba(255,255,255,0.7);}
+.toggle-desc{font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.3);margin-top:2px;}
+.toggle-switch{position:relative;width:44px;height:24px;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,0.1);
+  border-radius:24px;transition:all 0.3s;border:1px solid rgba(255,255,255,0.1);}
+.slider::before{content:'';position:absolute;height:18px;width:18px;left:2px;bottom:2px;
+  background:rgba(255,255,255,0.4);border-radius:50%;transition:all 0.3s;}
+input:checked + .slider{background:rgba(57,255,20,0.3);border-color:rgba(57,255,20,0.5);}
+input:checked + .slider::before{transform:translateX(20px);background:var(--g);}
+
+/* THEME */
+.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.theme-opt{border-radius:10px;padding:14px;cursor:pointer;text-align:center;
+  border:2px solid transparent;transition:all 0.2s;}
+.theme-opt.dark-opt{background:#020602;border-color:rgba(255,255,255,0.1);}
+.theme-opt.light-opt{background:#f0f4f0;border-color:rgba(255,255,255,0.1);}
+.theme-opt.selected{border-color:var(--g);}
+.theme-opt input{display:none;}
+.theme-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:6px;}
+.dark-opt  .theme-label{color:rgba(255,255,255,0.6);}
+.light-opt .theme-label{color:rgba(0,0,0,0.6);}
+
+.save-btn{width:100%;padding:13px;font-family:'Bebas Neue',sans-serif;font-size:18px;
+  letter-spacing:4px;background:rgba(57,255,20,0.15);border:1px solid rgba(57,255,20,0.3);
+  border-radius:12px;color:var(--g);cursor:pointer;transition:all 0.2s;margin-top:8px;}
+.save-btn:hover{background:rgba(57,255,20,0.25);box-shadow:0 0 20px rgba(57,255,20,0.15);}
+
+.premium-badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.25);
+  border-radius:8px;padding:5px 12px;font-size:9px;letter-spacing:2px;color:var(--y);}
+.upgrade-note{font-size:10px;letter-spacing:1px;color:rgba(255,255,255,0.3);
+  margin-top:8px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;line-height:1.6;}
+.upgrade-note a{color:var(--g);text-decoration:none;}
+
+.public-link{display:flex;align-items:center;gap:8px;background:rgba(57,255,20,0.05);
+  border:1px solid rgba(57,255,20,0.15);border-radius:9px;padding:10px 13px;margin-top:8px;}
+.public-link span{flex:1;font-size:11px;color:rgba(57,255,20,0.7);word-break:break-all;}
+.copy-btn{background:rgba(57,255,20,0.15);border:1px solid rgba(57,255,20,0.3);
+  border-radius:6px;padding:4px 10px;color:var(--g);cursor:pointer;font-size:10px;
+  font-family:'DM Mono',monospace;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="page">
+  <a href="/dashboard" class="back">← Back to Dashboard</a>
+  <div class="title">⚙️ SETTINGS</div>
+  <div class="subtitle">Customize your experience</div>
+
+  <form method="POST" action="/settings">
+
+    <!-- AVATAR -->
+    <div class="section">
+      <div class="sec-title">Choose Avatar</div>
+      <div class="av-grid">
+        {% for av in avatars %}
+        <div class="av-opt {% if av == (user.avatar or '🎯') %}sel{% endif %}"
+             onclick="pickAv('{{ av }}',this)">{{ av }}</div>
+        {% endfor %}
+      </div>
+      <input type="hidden" name="avatar" id="avInput" value="{{ user.avatar or '🎯' }}">
+    </div>
+
+    <!-- THEME -->
+    <div class="section">
+      <div class="sec-title">🎨 Theme</div>
+      <div class="theme-grid">
+        <label class="theme-opt dark-opt {% if (user.theme or 'dark') == 'dark' %}selected{% endif %}">
+          <input type="radio" name="theme" value="dark" {% if (user.theme or 'dark') == 'dark' %}checked{% endif %}
+                 onchange="document.querySelectorAll('.theme-opt').forEach(e=>e.classList.remove('selected'));this.parentElement.classList.add('selected')">
+          <div style="font-size:24px;">🌙</div>
+          <div class="theme-label">Dark</div>
+        </label>
+        <label class="theme-opt light-opt {% if user.theme == 'light' %}selected{% endif %}">
+          <input type="radio" name="theme" value="light" {% if user.theme == 'light' %}checked{% endif %}
+                 onchange="document.querySelectorAll('.theme-opt').forEach(e=>e.classList.remove('selected'));this.parentElement.classList.add('selected')">
+          <div style="font-size:24px;">☀️</div>
+          <div class="theme-label">Light</div>
+        </label>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="section">
+      <div class="sec-title">🔔 Notifications
+        {% if not user.is_premium %}
+        <span class="premium-badge" style="float:right;">⭐ Premium</span>
+        {% endif %}
+      </div>
+      {% if user.is_premium %}
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" name="email" value="{{ user.email or '' }}" placeholder="your@email.com">
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Daily Email Reminder</div>
+          <div class="toggle-desc">Get a daily reminder to check in</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" name="notify_email" {% if user.notify_email %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="field" style="margin-top:14px;">
+        <label>WhatsApp Number (with country code)</label>
+        <input type="text" name="whatsapp" value="{{ user.whatsapp or '' }}" placeholder="+91 9876543210">
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">WhatsApp Reminder</div>
+          <div class="toggle-desc">Get WhatsApp message via CallMeBot</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" name="notify_whatsapp" {% if user.notify_whatsapp %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+      </div>
+      {% else %}
+      <div class="upgrade-note">
+        🔔 Daily email and WhatsApp reminders are <strong>Premium features</strong>.<br>
+        <a href="/upgrade">Upgrade to Premium →</a> to unlock reminders and more.
+      </div>
+      <input type="hidden" name="email" value="{{ user.email or '' }}">
+      <input type="hidden" name="whatsapp" value="{{ user.whatsapp or '' }}">
+      {% endif %}
+    </div>
+
+    <!-- PUBLIC PROFILE -->
+    <div class="section">
+      <div class="sec-title">👤 Public Profile</div>
+      <div style="font-size:10px;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:8px;">
+        Share your streak with anyone — even non-users!
+      </div>
+      <div class="public-link">
+        <span id="profileUrl">/u/{{ user.username }}</span>
+        <button type="button" class="copy-btn" onclick="copyProfile()">📋 Copy</button>
+      </div>
+      <a href="/u/{{ user.username }}" target="_blank"
+         style="display:block;margin-top:8px;font-size:10px;letter-spacing:2px;color:rgba(57,255,20,0.5);text-decoration:none;">
+        👁️ Preview my profile →
+      </a>
+    </div>
+
+    <button type="submit" class="save-btn">SAVE SETTINGS →</button>
+  </form>
+</div>
+
+<script>
+var selAv = '{{ user.avatar or "🎯" }}';
+function pickAv(av,el){
+  selAv=av;
+  document.querySelectorAll('.av-opt').forEach(function(e){e.classList.remove('sel');});
+  el.classList.add('sel');
+  document.getElementById('avInput').value=av;
+}
+function copyProfile(){
+  var url = window.location.origin + '/u/{{ user.username }}';
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(function(){
+      document.querySelector('.copy-btn').textContent='✅ Copied!';
+      setTimeout(function(){document.querySelector('.copy-btn').textContent='📋 Copy';},2000);
+    });
+  }
+}
+</script>
+</body>
+</html>

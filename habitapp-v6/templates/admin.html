@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#39FF14;--r:#FF3B30;--y:#FFD700;--o:#FF8C00;}
+body{min-height:100vh;background:#020602;font-family:'DM Mono',monospace;color:#fff;overflow-x:hidden;}
+
+.bg{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 60% 40% at 50% 0%,#1a0a0a88 0%,transparent 55%),
+    linear-gradient(160deg,#020602 0%,#080808 100%);}
+.page{position:relative;z-index:10;max-width:1400px;margin:0 auto;padding:20px 24px;}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,59,48,0.15);
+  border-radius:14px;padding:10px 18px;margin-bottom:20px;}
+.nbrand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:#FF3B30;}
+.nright{display:flex;align-items:center;gap:10px;}
+.ninfo{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.3);}
+.nbtn{display:inline-block;background:transparent;border:1px solid rgba(255,59,48,0.2);
+  border-radius:8px;padding:6px 12px;color:rgba(255,59,48,0.5);font-family:'DM Mono',monospace;
+  font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:all 0.2s;}
+.nbtn:hover{border-color:rgba(255,59,48,0.5);color:#FF3B30;}
+.gbtn{border-color:rgba(57,255,20,0.2);color:rgba(57,255,20,0.5);}
+.gbtn:hover{border-color:rgba(57,255,20,0.5);color:var(--g);}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
+.stat-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;padding:16px;text-align:center;transition:all 0.2s;}
+.stat-card:hover{transform:translateY(-2px);}
+.stat-card.red  {border-color:rgba(255,59,48,0.2);background:rgba(255,59,48,0.04);}
+.stat-card.green{border-color:rgba(57,255,20,0.2);background:rgba(57,255,20,0.04);}
+.stat-card.yellow{border-color:rgba(255,215,0,0.2);background:rgba(255,215,0,0.04);}
+.stat-card.orange{border-color:rgba(255,140,0,0.2);background:rgba(255,140,0,0.04);}
+.stat-card.blue {border-color:rgba(0,150,255,0.2);background:rgba(0,150,255,0.04);}
+.stat-icon{font-size:28px;margin-bottom:8px;display:block;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;line-height:1;}
+.stat-card.red    .stat-val{color:var(--r);text-shadow:0 0 12px rgba(255,59,48,0.3);}
+.stat-card.green  .stat-val{color:var(--g);text-shadow:0 0 12px rgba(57,255,20,0.3);}
+.stat-card.yellow .stat-val{color:var(--y);text-shadow:0 0 12px rgba(255,215,0,0.3);}
+.stat-card.orange .stat-val{color:var(--o);}
+.stat-card.blue   .stat-val{color:#00aaff;}
+.stat-lbl{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:4px;}
+
+/* SECTION */
+.section{margin-bottom:24px;}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;
+  color:rgba(255,255,255,0.5);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.sec-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06);}
+
+/* TABLE */
+.tbl-wrap{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);
+  border-radius:14px;overflow:hidden;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead{background:rgba(255,255,255,0.04);}
+th{padding:10px 14px;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.4);
+  text-transform:uppercase;text-align:left;white-space:nowrap;}
+td{padding:10px 14px;font-size:11px;letter-spacing:1px;color:rgba(255,255,255,0.65);
+  border-top:1px solid rgba(255,255,255,0.04);white-space:nowrap;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+
+/* BADGES */
+.badge{display:inline-block;border-radius:6px;padding:2px 8px;font-size:9px;letter-spacing:2px;}
+.badge.green{background:rgba(57,255,20,0.1);color:var(--g);border:1px solid rgba(57,255,20,0.2);}
+.badge.red  {background:rgba(255,59,48,0.1);color:var(--r);border:1px solid rgba(255,59,48,0.2);}
+.badge.yellow{background:rgba(255,215,0,0.1);color:var(--y);border:1px solid rgba(255,215,0,0.2);}
+
+/* DELETE BTN */
+.del-btn{background:transparent;border:1px solid rgba(255,59,48,0.2);border-radius:6px;
+  padding:3px 8px;color:rgba(255,59,48,0.45);cursor:pointer;font-size:9px;
+  font-family:'DM Mono',monospace;transition:all 0.2s;}
+.del-btn:hover{border-color:rgba(255,59,48,0.6);color:#FF3B30;}
+
+/* ACTIVITY */
+.activity-list{display:flex;flex-direction:column;gap:6px;}
+.act-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 14px;}
+.act-av{font-size:20px;}
+.act-info{flex:1;}
+.act-name{font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.7);}
+.act-habit{font-size:9px;letter-spacing:1px;color:rgba(57,255,20,0.5);margin-top:2px;}
+.act-date{font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.25);}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:700px){.two-col{grid-template-columns:1fr;}.page{padding:12px;}}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(14px);z-index:200;
+  background:rgba(8,18,8,0.96);border:1px solid rgba(57,255,20,0.3);border-radius:11px;
+  padding:10px 18px;font-size:11px;letter-spacing:2px;color:var(--g);
+  opacity:0;transition:all 0.3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="toast" id="toast"></div>
+
+<div class="page">
+
+<!-- NAV -->
+<nav>
+  <div class="nbrand">🔐 ADMIN PANEL</div>
+  <div class="nright">
+    <span class="ninfo">Habit Tracker Control Panel</span>
+    <a href="/dashboard" class="nbtn gbtn">👁️ View Site</a>
+    <a href="/admin/logout" class="nbtn">Logout</a>
+  </div>
+</nav>
+
+<!-- STATS -->
+<div class="stats-grid">
+  <div class="stat-card green">
+    <span class="stat-icon">👥</span>
+    <div class="stat-val">{{ total_users }}</div>
+    <div class="stat-lbl">Total Users</div>
+  </div>
+  <div class="stat-card yellow">
+    <span class="stat-icon">🎯</span>
+    <div class="stat-val">{{ total_habits }}</div>
+    <div class="stat-lbl">Total Habits</div>
+  </div>
+  <div class="stat-card orange">
+    <span class="stat-icon">✅</span>
+    <div class="stat-val">{{ total_logs }}</div>
+    <div class="stat-lbl">Total Check-ins</div>
+  </div>
+  <div class="stat-card red">
+    <span class="stat-icon">📅</span>
+    <div class="stat-val">{{ today_logs }}</div>
+    <div class="stat-lbl">Today's Check-ins</div>
+  </div>
+  <div class="stat-card blue">
+    <span class="stat-icon">🤝</span>
+    <div class="stat-val">{{ total_fr }}</div>
+    <div class="stat-lbl">Friendships</div>
+  </div>
+  <div class="stat-card yellow">
+    <span class="stat-icon">🔥</span>
+    <div class="stat-val">{{ total_rx }}</div>
+    <div class="stat-lbl">Reactions Sent</div>
+  </div>
+</div>
+
+<!-- TWO COLUMNS -->
+<div class="two-col">
+
+  <!-- RECENT ACTIVITY -->
+  <div class="section">
+    <div class="sec-title">📊 Recent Activity</div>
+    {% if recent %}
+    <div class="activity-list">
+      {% for a in recent %}
+      <div class="act-item">
+        <div class="act-av">{{ a.avatar or '🎯' }}</div>
+        <div class="act-info">
+          <div class="act-name">{{ a.username }}</div>
+          <div class="act-habit">🎯 {{ a.habit_name }}</div>
+        </div>
+        <div class="act-date">{{ a.log_date }}</div>
+        <div class="badge green">✅ Done</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:20px;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.2);">No activity yet</div>
+    {% endif %}
+  </div>
+
+  <!-- HABITS LIST -->
+  <div class="section">
+    <div class="sec-title">🎯 All Habits</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Icon</th><th>Habit Name</th><th>User</th></tr>
+        </thead>
+        <tbody>
+          {% if habits %}
+            {% for h in habits %}
+            <tr>
+              <td>{{ h.icon or '🎯' }}</td>
+              <td>{{ h.name }}</td>
+              <td><span class="badge green">{{ h.username }}</span></td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,0.2);padding:20px;">No habits yet</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ALL USERS -->
+<div class="section">
+  <div class="sec-title">👥 All Users ({{ total_users }})</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Avatar</th>
+          <th>Username</th>
+          <th>Invite Code</th>
+          <th>Habits</th>
+          <th>Streak</th>
+          <th>Friends</th>
+          <th>Joined</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if users %}
+          {% for u in users %}
+          <tr>
+            <td style="font-size:20px;">{{ u.avatar or '🎯' }}</td>
+            <td><strong style="color:#fff;">{{ u.username }}</strong></td>
+            <td>
+              <span class="badge yellow" style="cursor:pointer;" onclick="copyTxt('{{ u.invite_code }}')" title="Click to copy">
+                {{ u.invite_code }} 📋
+              </span>
+            </td>
+            <td><span class="badge green">{{ u.habit_count }} habit{{ 's' if u.habit_count != 1 else '' }}</span></td>
+            <td>
+              {% if u.total_streak > 0 %}
+              <span class="badge green">🔥 {{ u.total_streak }} days</span>
+              {% else %}
+              <span style="color:rgba(255,255,255,0.2);font-size:10px;">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if u.friend_count > 0 %}
+              <span class="badge yellow">{{ u.friend_count }} friend{{ 's' if u.friend_count != 1 else '' }}</span>
+              {% else %}
+              <span style="color:rgba(255,255,255,0.2);font-size:10px;">—</span>
+              {% endif %}
+            </td>
+            <td style="color:rgba(255,255,255,0.35);font-size:10px;">{{ u.created_at[:10] if u.created_at else '—' }}</td>
+            <td>
+              <form method="POST" action="/admin/delete-user" style="display:inline;"
+                onsubmit="return confirm('Delete user {{ u.username }}? This cannot be undone!')">
+                <input type="hidden" name="user_id" value="{{ u.id }}">
+                <button type="submit" class="del-btn">🗑️ Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,0.2);padding:20px;">No users yet</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- end page -->
+
+<script>
+function copyTxt(txt){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(function(){showToast('📋 Copied: '+txt);});
+  }
+}
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2500);
+}
+// Auto refresh every 30 seconds
+setTimeout(function(){location.reload();}, 30000);
+</script>
+</body>
+</html>

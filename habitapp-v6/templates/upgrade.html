@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Upgrade to Premium</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#39FF14;--g2:#a8ff78;--y:#FFD700;}
+body{min-height:100vh;background:#020602;font-family:'DM Mono',monospace;color:#fff;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  background-image:radial-gradient(ellipse 70% 50% at 50% 0%,#0e2f0eaa 0%,transparent 55%);}
+.card{width:100%;max-width:460px;background:rgba(255,255,255,0.025);
+  border:1px solid rgba(57,255,20,0.2);border-radius:22px;padding:36px;
+  box-shadow:0 0 60px rgba(57,255,20,0.08);}
+.badge{font-size:9px;letter-spacing:4px;color:var(--g);text-transform:uppercase;
+  border:1px solid rgba(57,255,20,0.25);border-radius:20px;padding:5px 14px;display:inline-block;margin-bottom:14px;}
+.title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:5px;color:#fff;margin-bottom:6px;}
+.price{font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:2px;
+  color:var(--g);text-shadow:0 0 20px rgba(57,255,20,0.3);line-height:1;}
+.period{font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.3);margin-bottom:24px;}
+.features{list-style:none;margin-bottom:28px;}
+.features li{display:flex;align-items:center;gap:10px;padding:9px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;letter-spacing:1px;color:rgba(255,255,255,0.65);}
+.features li:last-child{border-bottom:none;}
+.features li::before{content:'✓';color:var(--g);font-size:14px;font-weight:bold;}
+.pay-btn{width:100%;padding:15px;font-family:'Bebas Neue',sans-serif;font-size:20px;
+  letter-spacing:4px;background:var(--g);color:#020602;border:none;border-radius:12px;
+  cursor:pointer;transition:all 0.2s;box-shadow:0 0 25px rgba(57,255,20,0.25);}
+.pay-btn:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(57,255,20,0.35);}
+.pay-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.secure{text-align:center;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.25);margin-top:12px;}
+.back{display:block;text-align:center;margin-top:16px;font-size:10px;letter-spacing:2px;
+  color:rgba(255,255,255,0.3);text-decoration:none;}
+.back:hover{color:rgba(255,255,255,0.6);}
+.no-stripe{background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);
+  border-radius:10px;padding:14px;font-size:11px;letter-spacing:1px;
+  color:rgba(255,215,0,0.7);line-height:1.6;margin-bottom:16px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="badge">⭐ Premium Plan</div>
+  <div class="title">GO PREMIUM</div>
+  <div class="price">{{ premium_price }}</div>
+  <div class="period">per month · cancel anytime</div>
+  <ul class="features">
+    <li>Track up to 3 habits</li>
+    <li>Unlimited friends</li>
+    <li>Daily email reminders</li>
+    <li>WhatsApp reminders</li>
+    <li>Public profile page</li>
+    <li>Priority support</li>
+    <li>📋 10 tasks manager</li>
+    <li>All future features</li>
+  </ul>
+
+  {% if stripe_pk %}
+  <button class="pay-btn" id="payBtn" onclick="startCheckout()">
+    PAY WITH CARD →
+  </button>
+  <div class="secure">🔒 Secured by Stripe · Works worldwide</div>
+  {% else %}
+  <div class="no-stripe">
+    ⚠️ Payments not configured yet.<br>
+    Contact the admin to upgrade manually.
+  </div>
+  {% endif %}
+
+  <a href="/dashboard" class="back">← Back to Dashboard</a>
+</div>
+
+{% if stripe_pk %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+async function startCheckout(){
+  var btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  btn.textContent = 'Loading...';
+  try{
+    var r = await fetch('/create-checkout',{method:'POST'});
+    var d = await r.json();
+    if(d.url){ window.location.href = d.url; }
+    else { alert('Error: '+(d.error||'Unknown')); btn.disabled=false; btn.textContent='PAY WITH CARD →'; }
+  }catch(e){
+    alert('Error: '+e.message);
+    btn.disabled=false;btn.textContent='PAY WITH CARD →';
+  }
+}
+</script>
+{% endif %}
+</body>
+</html>

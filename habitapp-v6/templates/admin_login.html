@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#020602;font-family:'DM Mono',monospace;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  background-image:radial-gradient(ellipse 60% 60% at 50% 0%,#1a0a0a99 0%,transparent 55%);}
+.card{width:100%;max-width:360px;margin:20px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,59,48,0.2);
+  border-radius:20px;padding:36px 30px;box-shadow:0 0 40px rgba(255,59,48,0.05);}
+.logo{text-align:center;margin-bottom:26px;}
+.logo h1{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:5px;color:#FF3B30;}
+.logo p{font-size:9px;letter-spacing:4px;color:rgba(255,59,48,0.4);margin-top:4px;text-transform:uppercase;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.3);
+  text-transform:uppercase;margin-bottom:6px;}
+.field input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:15px;
+  color:#fff;outline:none;transition:border-color 0.3s;}
+.field input:focus{border-color:rgba(255,59,48,0.4);}
+.btn{width:100%;padding:13px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;
+  background:linear-gradient(135deg,rgba(255,59,48,0.2),rgba(255,59,48,0.08));
+  border:1px solid rgba(255,59,48,0.35);border-radius:12px;color:#FF3B30;
+  cursor:pointer;transition:all 0.3s;margin-top:4px;}
+.btn:hover{background:rgba(255,59,48,0.25);box-shadow:0 0 24px rgba(255,59,48,0.2);}
+.err{background:rgba(255,59,48,0.1);border:1px solid rgba(255,59,48,0.3);
+  border-radius:8px;padding:10px 14px;font-size:11px;color:#ff6b6b;margin-bottom:14px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <h1>🔐 ADMIN</h1>
+    <p>Habit Tracker Control Panel</p>
+  </div>
+  {% if error %}<div class="err">⚠️ {{ error }}</div>{% endif %}
+  <form method="POST" action="/admin/login">
+    <div class="field">
+      <label>Admin Password</label>
+      <input type="password" name="password" placeholder="••••••••" required autofocus>
+    </div>
+    <button type="submit" class="btn">ENTER →</button>
+  </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#020602;font-family:'DM Mono',monospace;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  background-image:radial-gradient(ellipse 60% 60% at 50% 0%,#0e2f0eaa 0%,transparent 55%);}
+.card{width:100%;max-width:480px;margin:24px;
+  background:rgba(255,255,255,0.025);border:1px solid rgba(57,255,20,0.15);border-radius:20px;padding:26px;}
+.title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:5px;
+  background:linear-gradient(135deg,#fff,#a8ff78);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+.sub{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.25);margin-bottom:20px;text-transform:uppercase;}
+.item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.item:last-child{border-bottom:none;}
+.rank{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;min-width:26px;text-align:center;}
+.r1{color:#FFD700;text-shadow:0 0 10px #FFD70088;}
+.r2{color:#C0C0C0;}
+.r3{color:#CD7F32;}
+.rn{color:rgba(255,255,255,0.25);}
+.av{font-size:26px;}
+.info{flex:1;}
+.name{font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.75);}
+.name.me{color:#39FF14;}
+.hsub{font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.22);margin-top:2px;}
+.st{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#39FF14;text-shadow:0 0 12px rgba(57,255,20,0.3);}
+.back{display:block;text-align:center;margin-top:18px;font-size:9px;letter-spacing:3px;
+  color:rgba(57,255,20,0.45);text-decoration:none;padding:9px;
+  border:1px solid rgba(57,255,20,0.14);border-radius:8px;}
+.back:hover{background:rgba(57,255,20,0.07);color:#39FF14;}
+.empty{text-align:center;padding:20px;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.2);}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="title">🏆 LEADERBOARD</div>
+  <div class="sub">Total streak across all habits</div>
+  {% if board %}
+    {% for p in board %}
+    <div class="item">
+      <div class="rank {{ ['r1','r2','r3'][loop.index0] if loop.index0 < 3 else 'rn' }}">
+        {{ ['🥇','🥈','🥉'][loop.index0] if loop.index0 < 3 else '#'+loop.index|string }}
+      </div>
+      <div class="av">{{ p.avatar }}</div>
+      <div class="info">
+        <div class="name {{ 'me' if p.is_me else '' }}">{{ p.username }}{{ ' (you)' if p.is_me else '' }}</div>
+        <div class="hsub">{{ p.habits }} habit{{ 's' if p.habits != 1 else '' }} · Best: {{ p.best }} days</div>
+      </div>
+      <div class="st">{{ p.streak }}🔥</div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty">Add friends to compete!</div>
+  {% endif %}
+  <a href="/dashboard" class="back">← Back to Dashboard</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Habit Tracker — Build Streaks Together</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#39FF14;--g2:#a8ff78;--y:#FFD700;--r:#FF3B30;}
+html{scroll-behavior:smooth;}
+body{background:#020602;font-family:'DM Mono',monospace;color:#fff;overflow-x:hidden;}
+
+/* BG */
+.bg{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 80% 50% at 50% -10%,#0e2f0ecc 0%,transparent 55%),
+    linear-gradient(180deg,#020602 0%,#040f04 100%);}
+.gbg{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:linear-gradient(rgba(57,255,20,0.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(57,255,20,0.018) 1px,transparent 1px);
+  background-size:60px 60px;}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 40px;background:rgba(2,6,2,0.85);
+  border-bottom:1px solid rgba(57,255,20,0.08);backdrop-filter:blur(20px);}
+.nav-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;
+  background:linear-gradient(135deg,#fff,var(--g2));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;}
+.nav-links{display:flex;align-items:center;gap:12px;}
+.nav-link{font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-decoration:none;
+  text-transform:uppercase;transition:color 0.2s;}
+.nav-link:hover{color:var(--g);}
+.nav-cta{background:rgba(57,255,20,0.1);border:1px solid rgba(57,255,20,0.3);
+  border-radius:8px;padding:8px 16px;color:var(--g);font-family:'DM Mono',monospace;
+  font-size:10px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:all 0.2s;}
+.nav-cta:hover{background:rgba(57,255,20,0.2);}
+
+/* HERO */
+.hero{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;}
+.hero-tag{font-size:10px;letter-spacing:5px;color:rgba(57,255,20,0.6);text-transform:uppercase;
+  margin-bottom:20px;border:1px solid rgba(57,255,20,0.2);border-radius:20px;
+  padding:6px 16px;display:inline-block;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,100px);
+  letter-spacing:5px;line-height:0.95;margin-bottom:20px;
+  background:linear-gradient(135deg,#fff 0%,var(--g2) 60%,var(--g) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 40px rgba(57,255,20,0.2));}
+.hero-sub{font-size:14px;letter-spacing:2px;color:rgba(255,255,255,0.45);
+  max-width:500px;line-height:1.8;margin-bottom:36px;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:50px;}
+.btn-primary{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;
+  background:var(--g);color:#020602;border:none;border-radius:12px;
+  padding:14px 32px;cursor:pointer;text-decoration:none;display:inline-block;
+  box-shadow:0 0 30px rgba(57,255,20,0.3);transition:all 0.2s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(57,255,20,0.4);}
+.btn-secondary{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;
+  background:transparent;color:rgba(255,255,255,0.6);
+  border:1px solid rgba(255,255,255,0.15);border-radius:12px;
+  padding:14px 32px;cursor:pointer;text-decoration:none;display:inline-block;transition:all 0.2s;}
+.btn-secondary:hover{border-color:rgba(255,255,255,0.4);color:#fff;}
+
+/* DEMO DOTS */
+.demo-dots{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;}
+.dd{width:32px;height:32px;border-radius:50%;}
+.dd.g{background:#39FF14;box-shadow:0 0 12px #39FF14,0 0 28px #39FF1444;}
+.dd.r{background:#FF3B30;box-shadow:0 0 12px #FF3B30,0 0 28px #FF3B3044;}
+.dd.y{background:#FFD700;box-shadow:0 0 12px #FFD700,0 0 28px #FFD70044;animation:pulse 2s ease-in-out infinite;}
+.dd.e{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.06);}
+@keyframes pulse{0%,100%{box-shadow:0 0 12px #FFD700,0 0 28px #FFD70044}50%{box-shadow:0 0 22px #FFD700,0 0 55px #FFD70066}}
+.demo-label{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;}
+
+/* STATS BAR */
+.stats-bar{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;
+  padding:20px 40px;border-top:1px solid rgba(255,255,255,0.05);
+  border-bottom:1px solid rgba(255,255,255,0.05);}
+.stat-item{text-align:center;}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:var(--g);
+  text-shadow:0 0 15px rgba(57,255,20,0.3);}
+.stat-l{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:2px;}
+
+/* FEATURES */
+.features{position:relative;z-index:10;padding:80px 20px;max-width:1100px;margin:0 auto;}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:5px;
+  text-align:center;margin-bottom:50px;color:#fff;}
+.sec-title span{color:var(--g);}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.feat-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);
+  border-radius:16px;padding:24px;transition:all 0.3s;}
+.feat-card:hover{border-color:rgba(57,255,20,0.2);background:rgba(57,255,20,0.03);
+  transform:translateY(-4px);}
+.feat-icon{font-size:32px;margin-bottom:12px;display:block;}
+.feat-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;
+  color:#fff;margin-bottom:8px;}
+.feat-desc{font-size:11px;letter-spacing:1px;color:rgba(255,255,255,0.4);line-height:1.7;}
+
+/* PRICING */
+.pricing{position:relative;z-index:10;padding:80px 20px;max-width:800px;margin:0 auto;text-align:center;}
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:40px;}
+.price-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;padding:30px;text-align:left;}
+.price-card.premium{border-color:rgba(57,255,20,0.3);background:rgba(57,255,20,0.04);
+  box-shadow:0 0 40px rgba(57,255,20,0.08);}
+.price-badge{font-size:9px;letter-spacing:3px;color:var(--g);text-transform:uppercase;
+  border:1px solid rgba(57,255,20,0.3);border-radius:20px;padding:4px 12px;
+  display:inline-block;margin-bottom:14px;}
+.price-name{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:#fff;margin-bottom:6px;}
+.price-amount{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;
+  color:var(--g);text-shadow:0 0 15px rgba(57,255,20,0.3);line-height:1;}
+.price-period{font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:20px;}
+.price-features{list-style:none;margin-bottom:24px;}
+.price-features li{font-size:11px;letter-spacing:1px;color:rgba(255,255,255,0.55);
+  padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:8px;}
+.price-features li::before{content:'✓';color:var(--g);}
+.price-features li.no{color:rgba(255,255,255,0.25);}
+.price-features li.no::before{content:'✗';color:rgba(255,255,255,0.2);}
+.price-btn{display:block;text-align:center;font-family:'Bebas Neue',sans-serif;
+  font-size:16px;letter-spacing:3px;border-radius:10px;padding:12px;
+  text-decoration:none;transition:all 0.2s;}
+.price-btn.free{background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);}
+.price-btn.free:hover{border-color:rgba(255,255,255,0.4);color:#fff;}
+.price-btn.pro{background:var(--g);color:#020602;border:none;box-shadow:0 0 20px rgba(57,255,20,0.25);}
+.price-btn.pro:hover{transform:translateY(-2px);box-shadow:0 0 35px rgba(57,255,20,0.35);}
+
+/* HOW IT WORKS */
+.how{position:relative;z-index:10;padding:80px 20px;max-width:800px;margin:0 auto;text-align:center;}
+.steps{display:flex;flex-direction:column;gap:16px;margin-top:40px;text-align:left;}
+.step{display:flex;align-items:center;gap:20px;background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:20px 24px;}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;
+  color:var(--g);text-shadow:0 0 15px rgba(57,255,20,0.3);min-width:40px;}
+.step-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:#fff;margin-bottom:4px;}
+.step-desc{font-size:11px;letter-spacing:1px;color:rgba(255,255,255,0.4);line-height:1.6;}
+
+/* CTA */
+.cta{position:relative;z-index:10;padding:80px 20px;text-align:center;
+  background:linear-gradient(135deg,rgba(57,255,20,0.06),rgba(57,255,20,0.02));
+  border-top:1px solid rgba(57,255,20,0.1);border-bottom:1px solid rgba(57,255,20,0.1);margin:40px 0;}
+.cta-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,60px);
+  letter-spacing:4px;color:#fff;margin-bottom:16px;}
+.cta-sub{font-size:12px;letter-spacing:2px;color:rgba(255,255,255,0.4);margin-bottom:30px;}
+
+/* FOOTER */
+footer{position:relative;z-index:10;text-align:center;padding:30px 20px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.2);}
+
+@media(max-width:600px){
+  .nav{padding:12px 20px;}
+  .price-grid{grid-template-columns:1fr;}
+  .stats-bar{gap:20px;}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="gbg"></div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-brand">🎯 HABIT TRACKER</div>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <a href="/login"    class="nav-link">Login</a>
+    <a href="/register" class="nav-cta">Get Started →</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">🔥 Build Streaks. Stay Consistent.</div>
+  <div class="hero-title">TRACK YOUR<br>HABITS DAILY</div>
+  <div class="hero-sub">Build powerful habits, compete with friends, and never break your streak. The app that keeps you accountable.</div>
+
+  <!-- Demo dots -->
+  <div class="demo-dots">
+    {% for i in range(19) %}<div class="dd g"></div>{% endfor %}
+    <div class="dd y"></div>
+    {% for i in range(10) %}<div class="dd e"></div>{% endfor %}
+  </div>
+  <div class="demo-label">🟢 Done &nbsp;&nbsp; 🟡 Today &nbsp;&nbsp; ⚪ Upcoming</div>
+  <br>
+
+  <div class="hero-btns">
+    <a href="/register" class="btn-primary">START FREE →</a>
+    <a href="#how" class="btn-secondary">HOW IT WORKS</a>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar" style="position:relative;z-index:10;">
+  <div class="stat-item"><div class="stat-n">100%</div><div class="stat-l">Free to Start</div></div>
+  <div class="stat-item"><div class="stat-n">3</div><div class="stat-l">Habits Tracked</div></div>
+  <div class="stat-item"><div class="stat-n">∞</div><div class="stat-l">Streaks Possible</div></div>
+  <div class="stat-item"><div class="stat-n">🔒</div><div class="stat-l">Secure & Private</div></div>
+</div>
+
+<!-- FEATURES -->
+<div class="features" id="features">
+  <div class="sec-title">EVERYTHING YOU <span>NEED</span></div>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <span class="feat-icon">🎯</span>
+      <div class="feat-title">Track Multiple Habits</div>
+      <div class="feat-desc">Track up to 3 habits simultaneously. See your progress with beautiful dot grids — green for done, red for missed.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">👥</span>
+      <div class="feat-title">Friend System</div>
+      <div class="feat-desc">Add friends via unique invite codes. See their habit trackers side by side and react to their streaks.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🏆</span>
+      <div class="feat-title">Leaderboard</div>
+      <div class="feat-desc">Compete with friends on a real-time leaderboard ranked by streak. Who's the most consistent?</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">📧</span>
+      <div class="feat-title">Daily Reminders</div>
+      <div class="feat-desc">Get daily email and WhatsApp reminders so you never forget to check in and keep your streak alive.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">👤</span>
+      <div class="feat-title">Public Profile</div>
+      <div class="feat-desc">Share your streak with the world! Each user gets a public profile page to show off their consistency.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🌙</span>
+      <div class="feat-title">Dark & Light Mode</div>
+      <div class="feat-desc">Switch between dark and light themes. Your preference is saved automatically across all devices.</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how" id="how">
+  <div class="sec-title">HOW IT <span>WORKS</span></div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div>
+        <div class="step-title">Create Your Account</div>
+        <div class="step-desc">Sign up in 30 seconds. Choose your avatar and set your first habit. No credit card needed.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div>
+        <div class="step-title">Check In Daily</div>
+        <div class="step-desc">Tap the big green button every day. Watch your dot grid fill up with green. Only today and yesterday are editable — so no cheating!</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div>
+        <div class="step-title">Add Friends</div>
+        <div class="step-desc">Share your unique 6-character invite code. See each other's trackers and compete on the leaderboard.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div>
+        <div class="step-title">Build Your Streak</div>
+        <div class="step-desc">The longer your streak, the higher you rank. Don't break the chain!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="pricing" id="pricing">
+  <div class="sec-title">SIMPLE <span>PRICING</span></div>
+  <div class="price-grid">
+    <div class="price-card">
+      <div class="price-badge">Free Forever</div>
+      <div class="price-name">STARTER</div>
+      <div class="price-amount">₹0</div>
+      <div class="price-period">forever free</div>
+      <ul class="price-features">
+        <li>1 habit to track</li>
+        <li>Up to 3 friends</li>
+        <li>Leaderboard access</li>
+        <li>Public profile page</li>
+        <li class="no">Email reminders</li>
+        <li class="no">WhatsApp reminders</li>
+        <li class="no">Multiple habits (3)</li>
+      </ul>
+      <a href="/register" class="price-btn free">GET STARTED →</a>
+    </div>
+    <div class="price-card premium">
+      <div class="price-badge">⭐ Most Popular</div>
+      <div class="price-name">PREMIUM</div>
+      <div class="price-amount">{{ premium_price }}</div>
+      <div class="price-period">per month</div>
+      <ul class="price-features">
+        <li>3 habits to track</li>
+        <li>Unlimited friends</li>
+        <li>Leaderboard access</li>
+        <li>Public profile page</li>
+        <li>Daily email reminders</li>
+        <li>WhatsApp reminders</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="/register" class="price-btn pro">GO PREMIUM →</a>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta">
+  <div class="cta-title">READY TO BE<br>CONSISTENT?</div>
+  <div class="cta-sub">Join today. It's free. No excuses.</div>
+  <a href="/register" class="btn-primary">CREATE FREE ACCOUNT →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div style="margin-bottom:8px;">🎯 HABIT TRACKER — Built with 💚</div>
+  <div><a href="/login" style="color:rgba(255,255,255,0.3);text-decoration:none;margin:0 8px;">Login</a>
+  <a href="/register" style="color:rgba(255,255,255,0.3);text-decoration:none;margin:0 8px;">Register</a>
+  <a href="/leaderboard" style="color:rgba(255,255,255,0.3);text-decoration:none;margin:0 8px;">Leaderboard</a></div>
+</footer>
+</body>
+</html>

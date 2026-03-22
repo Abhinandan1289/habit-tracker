@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tasks — Habit Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#39FF14;--g2:#a8ff78;--y:#FFD700;--r:#FF3B30;--o:#FF8C00;
+  --gg:0 0 12px #39FF14,0 0 26px #39FF1444;}
+html,body{min-height:100vh;background:#020602;font-family:'DM Mono',monospace;color:#fff;overflow-x:hidden;}
+
+.bg{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 60% 70% at 5% 40%,#0d280d88 0%,transparent 60%),
+    radial-gradient(ellipse 50% 60% at 95% 60%,#0a1e0a66 0%,transparent 60%),
+    linear-gradient(160deg,#020602 0%,#040f04 100%);
+  animation:bgP 12s ease-in-out infinite alternate;}
+@keyframes bgP{0%{filter:brightness(1)}100%{filter:brightness(1.12)}}
+.gbg{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:linear-gradient(rgba(57,255,20,0.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(57,255,20,0.018) 1px,transparent 1px);
+  background-size:56px 56px;}
+.cg{position:fixed;z-index:1;pointer-events:none;border-radius:50%;filter:blur(90px);}
+.cg.tl{top:-150px;left:-150px;width:380px;height:380px;background:var(--g);opacity:0.08;}
+.cg.br{bottom:-150px;right:-150px;width:380px;height:380px;background:var(--g2);opacity:0.08;}
+
+.page{position:relative;z-index:10;max-width:720px;margin:0 auto;padding:24px 20px;}
+
+/* NAV */
+.topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;padding:10px 16px;margin-bottom:20px;}
+.brand{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;
+  background:linear-gradient(135deg,#fff,var(--g2));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;}
+.links{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.lnk{display:inline-block;background:transparent;border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;padding:5px 11px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;
+  font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:all 0.2s;}
+.lnk:hover{border-color:rgba(57,255,20,0.3);color:var(--g);}
+.premium-chip{background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.25);
+  border-radius:8px;padding:5px 11px;font-size:9px;letter-spacing:2px;color:var(--y);}
+
+/* HEADER */
+.header{margin-bottom:20px;}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:5px;
+  background:linear-gradient(135deg,#fff,var(--g2));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+.page-sub{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.28);text-transform:uppercase;}
+
+/* PROGRESS */
+.prog-section{background:rgba(255,255,255,0.025);border:1px solid rgba(57,255,20,0.15);
+  border-radius:14px;padding:16px 20px;margin-bottom:16px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.prog-info{flex:1;}
+.prog-label{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;}
+.prog-bar-bg{height:6px;background:rgba(255,255,255,0.07);border-radius:10px;overflow:hidden;}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--g2));
+  border-radius:10px;box-shadow:0 0 8px var(--g);transition:width 1s ease;}
+.prog-nums{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;
+  color:var(--g);text-shadow:0 0 12px rgba(57,255,20,0.3);white-space:nowrap;}
+.prog-sub{font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.25);margin-top:2px;}
+
+/* ADD TASK FORM */
+.add-form{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;padding:16px;margin-bottom:16px;}
+.add-form-title{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.28);
+  text-transform:uppercase;margin-bottom:12px;}
+.form-row{display:flex;gap:8px;flex-wrap:wrap;}
+.task-input{flex:1;min-width:200px;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:10px 13px;
+  font-family:'DM Mono',monospace;font-size:13px;color:#fff;outline:none;transition:border-color 0.3s;}
+.task-input:focus{border-color:rgba(57,255,20,0.4);}
+.task-input::placeholder{color:rgba(255,255,255,0.2);}
+.priority-sel{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:9px;padding:10px 12px;font-family:'DM Mono',monospace;font-size:12px;
+  color:#fff;outline:none;cursor:pointer;}
+.priority-sel option{background:#0a140a;}
+.date-input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:9px;padding:10px 12px;font-family:'DM Mono',monospace;font-size:12px;
+  color:#fff;outline:none;}
+.date-input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.5;}
+.add-task-btn{background:var(--g);color:#020602;border:none;border-radius:9px;
+  padding:10px 18px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;box-shadow:var(--gg);}
+.add-task-btn:hover{transform:scale(1.03);}
+.add-task-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+/* TASK LIST */
+.tasks-section{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;padding:16px;margin-bottom:14px;}
+.tasks-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.tasks-title{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.28);text-transform:uppercase;}
+.clear-btn{background:transparent;border:1px solid rgba(255,59,48,0.2);border-radius:7px;
+  padding:4px 10px;color:rgba(255,59,48,0.45);cursor:pointer;font-size:9px;
+  font-family:'DM Mono',monospace;transition:all 0.2s;}
+.clear-btn:hover{border-color:rgba(255,59,48,0.5);color:#ff6b6b;}
+
+/* TASK ITEM */
+.task-item{display:flex;align-items:center;gap:10px;padding:11px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);animation:fadeUp 0.3s ease both;}
+.task-item:last-child{border-bottom:none;padding-bottom:0;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.task-check-form{display:flex;align-items:center;}
+.task-check{width:22px;height:22px;border-radius:6px;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:all 0.2s;flex-shrink:0;}
+.task-check.undone{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);}
+.task-check.undone:hover{background:rgba(57,255,20,0.15);border-color:rgba(57,255,20,0.4);}
+.task-check.done-btn{background:rgba(57,255,20,0.15);border:1px solid rgba(57,255,20,0.35);box-shadow:var(--gg);}
+
+.task-body{flex:1;}
+.task-title{font-size:12px;letter-spacing:1px;color:rgba(255,255,255,0.75);line-height:1.4;
+  transition:all 0.2s;}
+.task-title.done{color:rgba(255,255,255,0.25);text-decoration:line-through;}
+.task-meta{display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap;}
+.priority-badge{font-size:8px;letter-spacing:2px;border-radius:5px;padding:2px 7px;text-transform:uppercase;}
+.priority-badge.high  {background:rgba(255,59,48,0.12);border:1px solid rgba(255,59,48,0.25);color:var(--r);}
+.priority-badge.normal{background:rgba(57,255,20,0.08);border:1px solid rgba(57,255,20,0.18);color:var(--g);}
+.priority-badge.low   {background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);}
+.due-badge{font-size:8px;letter-spacing:1px;color:rgba(255,215,0,0.55);}
+.due-badge.overdue{color:var(--r);}
+
+.task-del-form{display:flex;align-items:center;}
+.del-btn{background:transparent;border:none;color:rgba(255,59,48,0.3);
+  cursor:pointer;font-size:14px;padding:4px;transition:all 0.2s;border-radius:5px;}
+.del-btn:hover{color:#ff6b6b;background:rgba(255,59,48,0.1);}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:32px 20px;color:rgba(255,255,255,0.2);}
+.empty-icon{font-size:40px;margin-bottom:10px;display:block;}
+.empty-text{font-size:10px;letter-spacing:2px;text-transform:uppercase;line-height:1.7;}
+
+/* MAX reached */
+.max-note{text-align:center;padding:10px;font-size:9px;letter-spacing:2px;
+  color:rgba(255,215,0,0.5);text-transform:uppercase;
+  background:rgba(255,215,0,0.05);border-radius:8px;margin-top:8px;}
+
+/* FILTERS */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.filter-btn{background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;
+  padding:5px 12px;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.3);
+  cursor:pointer;transition:all 0.2s;font-family:'DM Mono',monospace;text-transform:uppercase;}
+.filter-btn:hover,.filter-btn.active{background:rgba(57,255,20,0.1);
+  border-color:rgba(57,255,20,0.3);color:var(--g);}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(14px);z-index:200;
+  background:rgba(8,18,8,0.96);border:1px solid rgba(57,255,20,0.3);border-radius:11px;
+  padding:10px 18px;font-size:11px;letter-spacing:2px;color:var(--g);
+  opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="gbg"></div>
+<div class="cg tl"></div><div class="cg br"></div>
+<div class="toast" id="toast"></div>
+
+<div class="page">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand">🎯 HABIT TRACKER</div>
+    <div class="links">
+      <span class="premium-chip">⭐ Premium</span>
+      <a href="/dashboard" class="lnk">📊 Dashboard</a>
+      <a href="/leaderboard" class="lnk">🏆 Board</a>
+      <a href="/settings" class="lnk">⚙️ Settings</a>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="page-title">📋 MY TASKS</div>
+    <div class="page-sub">Premium Feature — Up to 10 daily tasks</div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="prog-section">
+    <div class="prog-info">
+      <div class="prog-label">Today's Progress</div>
+      <div class="prog-bar-bg">
+        <div class="prog-bar-fill" style="width:{{ ((done_count / total * 100) | int) if total > 0 else 0 }}%"></div>
+      </div>
+    </div>
+    <div>
+      <div class="prog-nums">{{ done_count }}/{{ total }}</div>
+      <div class="prog-sub">TASKS DONE</div>
+    </div>
+  </div>
+
+  <!-- ADD TASK FORM -->
+  {% if total < max_tasks %}
+  <div class="add-form">
+    <div class="add-form-title">➕ Add New Task ({{ total }}/{{ max_tasks }})</div>
+    <form method="POST" action="/tasks/add">
+      <div class="form-row">
+        <input class="task-input" type="text" name="title" placeholder="What do you need to do?" required maxlength="100" autofocus>
+        <select class="priority-sel" name="priority">
+          <option value="high">🔴 High</option>
+          <option value="normal" selected>🟢 Normal</option>
+          <option value="low">⚪ Low</option>
+        </select>
+        <input class="date-input" type="date" name="due_date" title="Due date (optional)">
+        <button type="submit" class="add-task-btn">ADD →</button>
+      </div>
+    </form>
+  </div>
+  {% else %}
+  <div class="add-form">
+    <div class="add-form-title">➕ Add New Task</div>
+    <div class="max-note">⚠️ Maximum 10 tasks reached — complete or delete some tasks first</div>
+  </div>
+  {% endif %}
+
+  <!-- TASK LIST -->
+  <div class="tasks-section">
+    <div class="tasks-header">
+      <div class="tasks-title">All Tasks ({{ total }})</div>
+      {% if done_count > 0 %}
+      <form method="POST" action="/tasks/clear-done">
+        <button type="submit" class="clear-btn" onclick="return confirm('Clear all completed tasks?')">🗑️ Clear Done ({{ done_count }})</button>
+      </form>
+      {% endif %}
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+      <button class="filter-btn active" onclick="filterTasks('all',this)">All ({{ total }})</button>
+      <button class="filter-btn" onclick="filterTasks('pending',this)">Pending ({{ total - done_count }})</button>
+      <button class="filter-btn" onclick="filterTasks('done',this)">Done ({{ done_count }})</button>
+      <button class="filter-btn" onclick="filterTasks('high',this)">🔴 High Priority</button>
+    </div>
+
+    {% if tasks %}
+    <div id="taskList">
+      {% for t in tasks %}
+      {% set is_done = t.done == 1 or t.done == True %}
+      {% set today = '' %}
+      <div class="task-item" 
+           data-done="{{ 'done' if is_done else 'pending' }}"
+           data-priority="{{ t.priority or 'normal' }}"
+           id="task-{{ t.id }}">
+
+        <!-- CHECK BUTTON -->
+        <form method="POST" action="/tasks/toggle" class="task-check-form">
+          <input type="hidden" name="task_id" value="{{ t.id }}">
+          <button type="submit" class="task-check {{ 'done-btn' if is_done else 'undone' }}"
+                  title="{{ 'Mark incomplete' if is_done else 'Mark complete' }}">
+            {% if is_done %}✅{% else %}&nbsp;{% endif %}
+          </button>
+        </form>
+
+        <!-- TASK BODY -->
+        <div class="task-body">
+          <div class="task-title {{ 'done' if is_done else '' }}">{{ t.title }}</div>
+          <div class="task-meta">
+            <span class="priority-badge {{ t.priority or 'normal' }}">
+              {{ '🔴 High' if t.priority == 'high' else ('⚪ Low' if t.priority == 'low' else '🟢 Normal') }}
+            </span>
+            {% if t.due_date %}
+            <span class="due-badge">📅 {{ t.due_date }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- DELETE BUTTON -->
+        <form method="POST" action="/tasks/delete" class="task-del-form">
+          <input type="hidden" name="task_id" value="{{ t.id }}">
+          <button type="submit" class="del-btn" title="Delete task">🗑️</button>
+        </form>
+
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+      <span class="empty-icon">📋</span>
+      <div class="empty-text">No tasks yet!<br>Add your first task above.</div>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+// Filter tasks
+function filterTasks(type, btn){
+  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  document.querySelectorAll('.task-item').forEach(function(item){
+    var show = true;
+    if(type === 'done')    show = item.dataset.done === 'done';
+    if(type === 'pending') show = item.dataset.done === 'pending';
+    if(type === 'high')    show = item.dataset.priority === 'high';
+    item.style.display = show ? 'flex' : 'none';
+  });
+}
+
+// Toast
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2000);
+}
+
+// Set today's date as default for due date
+var di=document.querySelector('.date-input');
+if(di){var d=new Date();di.min=d.toISOString().split('T')[0];}
+</script>
+</body>
+</html>

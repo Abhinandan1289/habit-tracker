@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ user.username }}'s Habit Profile</title>
+<meta property="og:title" content="{{ user.username }}'s Habit Streak">
+<meta property="og:description" content="🔥 {{ total_streak }} day streak on Habit Tracker!">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#020602;font-family:'DM Mono',monospace;color:#fff;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  background-image:radial-gradient(ellipse 70% 50% at 50% 0%,#0e2f0e99 0%,transparent 55%);}
+.card{width:100%;max-width:500px;background:rgba(255,255,255,0.025);
+  border:1px solid rgba(57,255,20,0.15);border-radius:22px;padding:32px;
+  box-shadow:0 0 60px rgba(57,255,20,0.06);}
+.profile-top{text-align:center;margin-bottom:28px;}
+.av{font-size:60px;display:block;margin-bottom:10px;filter:drop-shadow(0 0 20px rgba(57,255,20,0.25));}
+.uname{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px;color:#fff;margin-bottom:4px;}
+.joined{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.25);text-transform:uppercase;}
+.total-streak{display:inline-flex;align-items:center;gap:8px;
+  background:rgba(57,255,20,0.08);border:1px solid rgba(57,255,20,0.2);
+  border-radius:20px;padding:8px 20px;margin-top:14px;
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#39FF14;
+  text-shadow:0 0 15px rgba(57,255,20,0.3);}
+
+.habit-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);
+  border-radius:14px;padding:16px;margin-bottom:12px;}
+.h-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.h-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:#fff;}
+.h-streak{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
+  color:#39FF14;text-shadow:0 0 10px rgba(57,255,20,0.3);}
+.prog-row{display:flex;align-items:center;gap:8px;}
+.pbg{flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:10px;overflow:hidden;}
+.pfill{height:100%;background:linear-gradient(90deg,#39FF14,#a8ff78);border-radius:10px;
+  box-shadow:0 0 8px #39FF14;}
+.ppct{font-size:10px;letter-spacing:2px;color:#39FF14;min-width:32px;text-align:right;}
+.h-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.hs{text-align:center;background:rgba(255,255,255,0.03);border-radius:8px;padding:8px;}
+.hs-v{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:rgba(255,255,255,0.7);}
+.hs-l{font-size:7px;letter-spacing:2px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-top:2px;}
+
+.cta-box{text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);}
+.cta-text{font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:12px;}
+.cta-btn{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;
+  background:#39FF14;color:#020602;border-radius:10px;padding:11px 24px;
+  text-decoration:none;box-shadow:0 0 20px rgba(57,255,20,0.25);}
+
+.share-btn{background:rgba(57,255,20,0.08);border:1px solid rgba(57,255,20,0.2);
+  border-radius:8px;padding:8px 16px;color:#39FF14;cursor:pointer;font-family:'DM Mono',monospace;
+  font-size:9px;letter-spacing:2px;margin-top:10px;transition:all 0.2s;}
+.share-btn:hover{background:rgba(57,255,20,0.15);}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="profile-top">
+    <span class="av">{{ user.avatar or '🎯' }}</span>
+    <div class="uname">{{ user.username }}</div>
+    <div class="joined">Member since {{ user.created_at[:10] if user.created_at else '2025' }}</div>
+    <div class="total-streak">🔥 {{ total_streak }} DAY TOTAL STREAK</div>
+  </div>
+
+  {% if profile_data %}
+    {% for pd in profile_data %}
+    <div class="habit-item">
+      <div class="h-top">
+        <div class="h-name">{{ pd.habit.icon or '🎯' }} {{ pd.habit.name }}</div>
+        <div class="h-streak">{{ pd.streak }}🔥</div>
+      </div>
+      <div class="prog-row">
+        <div class="pbg"><div class="pfill" style="width:{{ pd.pct }}%"></div></div>
+        <div class="ppct">{{ pd.pct }}%</div>
+      </div>
+      <div class="h-stats">
+        <div class="hs"><div class="hs-v">{{ pd.streak }}</div><div class="hs-l">Current</div></div>
+        <div class="hs"><div class="hs-v">{{ pd.best }}</div><div class="hs-l">Best</div></div>
+        <div class="hs"><div class="hs-v">{{ pd.done }}</div><div class="hs-l">This Month</div></div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center;padding:20px;color:rgba(255,255,255,0.2);font-size:11px;letter-spacing:2px;">No habits tracked yet</div>
+  {% endif %}
+
+  <div class="cta-box">
+    <div class="cta-text">Want to track your own habits?</div>
+    <a href="/register" class="cta-btn">START FREE →</a><br>
+    <button class="share-btn" onclick="share()">📤 Share This Profile</button>
+  </div>
+</div>
+<script>
+function share(){
+  var url = window.location.href;
+  if(navigator.share){
+    navigator.share({title:'{{ user.username }}\'s Habit Streak',url:url});
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(function(){alert('Link copied!');});
+  }
+}
+</script>
+</body>
+</html>
